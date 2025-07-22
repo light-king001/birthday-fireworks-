@@ -2,491 +2,171 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>Happy Birthday Faustina!</title>
-  <meta name="description" content="Birthday fireworks animation for Faustina, with accessible, mobile-friendly, and interactive design." />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Happy Birthday Faustina</title>
   <style>
-    html, body {
+    * {
       margin: 0;
       padding: 0;
-      height: 100%;
-      width: 100%;
-      background: #000;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      overflow: hidden;
-      touch-action: manipulation;
-    }
-    .bg-img {
-      position: fixed;
-      left: 0; top: 0; width: 100vw; height: 100vh;
-      object-fit: cover;
-      z-index: 0;
-      opacity: 0;
-      transition: opacity 1s;
-      pointer-events: none;
-      min-width: 100vw;
-      min-height: 100vh;
-      background: #000;
-    }
-    #img-reveal {
-      position: absolute;
-      left: 50%; top: 50%;
-      transform: translate(-50%,-50%);
-      width: 80vw; max-width: 400px;
-      height: 80vw; max-height: 400px;
-      border-radius: 50%;
-      overflow: hidden;
-      z-index: 3;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 1s;
-      box-shadow: 0 0 30px #fff;
-      background: #fff;
-    }
-    #text {
-      position: absolute;
-      top: 8vh;
-      width: 100vw;
-      text-align: center;
-      font-size: 2.5em;
-      font-weight: bold;
-      z-index: 2;
-      letter-spacing: 0.05em;
-      opacity: 0;
-      text-shadow: 0 0 25px #fff, 0 0 45px #ff0;
-      transition: opacity 1s;
-      mix-blend-mode: lighten;
-      user-select: none;
-      padding: 0 3vw;
       box-sizing: border-box;
     }
-    #controls {
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #000;
+    }
+
+    canvas {
+      display: block;
+    }
+
+    #img-reveal {
       position: absolute;
-      top: 3vh; right: 3vw;
-      z-index: 10;
-      display: flex;
-      gap: 10px;
-      flex-direction: column;
+      top: 50%;
+      left: 50%;
+      width: 300px;
+      height: 300px;
+      transform: translate(-50%, -50%) scale(0);
+      border-radius: 50%;
+      opacity: 0;
+      transition: transform 1.2s ease-out, opacity 1.2s ease-out;
+      box-shadow: 0 0 40px 10px rgba(255, 255, 255, 0.3);
     }
-    .control-btn {
-      background: rgba(0,0,0,0.7);
-      color: #fff;
-      border: 2px solid #fff;
-      border-radius: 8px;
-      padding: 12px 18px;
-      font-size: 1.1em;
-      cursor: pointer;
-      transition: background 0.2s, border 0.2s;
-      min-width: 120px;
-      min-height: 44px;
-      touch-action: manipulation;
-      box-shadow: 0 2px 10px #000;
+
+    #img-reveal.show {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
     }
-    .control-btn:hover, .control-btn:focus {
-      background: #fff;
-      color: #222;
-      border: 2px solid #222;
-      outline: none;
+
+    #text {
+      position: absolute;
+      top: 60%;
+      width: 100%;
+      text-align: center;
+      font-size: 3em;
+      font-weight: bold;
+      color: white;
+      opacity: 0;
+      animation: fadeInText 2s ease-in-out forwards 2.5s;
     }
-    @media (max-width: 600px) {
-      #text {
-        font-size: 1.3em;
-        top: 5vh;
-        padding: 0 2vw;
+
+    @keyframes fadeInText {
+      0% {
+        opacity: 0;
+        transform: scale(0.8);
       }
-      #img-reveal {
-        width: 65vw;
-        height: 65vw;
-        max-width: 90vw;
-        max-height: 90vw;
-      }
-      #controls {
-        top: auto;
-        bottom: 2vh;
-        right: 2vw;
-        flex-direction: row;
-      }
-      .control-btn {
-        font-size: 1em;
-        min-width: 90px;
-        min-height: 38px;
-        padding: 8px 12px;
+      100% {
+        opacity: 1;
+        transform: scale(1);
       }
     }
-    /* Prevent double-tap zoom on mobile */
-    body, .control-btn {
-      touch-action: manipulation;
+
+    @keyframes colorCycle {
+      0% { color: red; }
+      25% { color: orange; }
+      50% { color: yellow; }
+      75% { color: lime; }
+      100% { color: cyan; }
+    }
+
+    #text.animate {
+      animation: colorCycle 5s infinite;
     }
   </style>
 </head>
 <body>
-  <!-- Controls -->
-  <div id="controls">
-    <button class="control-btn" id="replayBtn" aria-label="Replay Animation">Replay</button>
-    <button class="control-btn" id="skipBtn" aria-label="Skip Animation">Skip</button>
-  </div>
-  <!-- Background images (with alt, lazy loading, width/height hints) -->
-  <img class="bg-img" src="images/7.jpg" id="bg1" alt="Background image 1" style="opacity:1;" loading="lazy" sizes="100vw" width="1080" height="1920">
-  <img class="bg-img" src="images/8.jpg" id="bg2" alt="Background image 2" loading="lazy" sizes="100vw" width="1080" height="1920">
-  <img class="bg-img" src="images/9.jpg" id="bg3" alt="Background image 3" loading="lazy" sizes="100vw" width="1080" height="1920">
-  <!-- Circular reveal image -->
-  <img id="img-reveal" src="images/6.jpg" alt="Faustina in blue attire" style="display:none;" loading="lazy" width="400" height="400">
-  <!-- Fireworks text -->
-  <div id="text">Happy Birthday Faustina</div>
-  <canvas id="fireworks" width="1080" height="1920" aria-label="Fireworks animation"></canvas>
-  <noscript>
-    <div style="color: white; background: #222; padding: 2em; text-align: center;">
-      This interactive birthday animation requires JavaScript enabled in your browser.
-    </div>
-  </noscript>
+  <canvas id="canvas"></canvas>
+  <img id="img-reveal" src="images/6.jpg" alt="Faustina smiling" />
+  <div id="text" aria-label="Birthday greeting text" role="heading" aria-level="1">Happy Birthday Faustina</div>
+
   <script>
-    // Accessibility: Focus controls on load for keyboard navigation
-    document.getElementById("replayBtn").tabIndex = 1;
-    document.getElementById("skipBtn").tabIndex = 2;
-
-    // --- Background cycling ---
-    const bgImages = [document.getElementById('bg1'), document.getElementById('bg2'), document.getElementById('bg3')];
-    let bgIdx = 0;
-    setInterval(() => {
-      bgImages.forEach((img, i) => img.style.opacity = (i === bgIdx) ? '1' : '0');
-      bgIdx = (bgIdx + 1) % bgImages.length;
-    }, 4000);
-
-    // --- Responsive canvas ---
-    const canvas = document.getElementById("fireworks");
+    const canvas = document.getElementById("canvas");
     const ctx = canvas.getContext("2d");
+    const img = document.getElementById("img-reveal");
+    const textDiv = document.getElementById("text");
+
+    let width, height;
+    let fireworkY = 0;
+    let explosionParticles = [];
+    let frame = 0;
 
     function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
     }
-    resizeCanvas();
+
     window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
 
-    // --- Firework and Particle logic ---
-    class Firework {
-      constructor(x, y, targetY, color) {
-        this.x = x;
-        this.y = y;
-        this.targetY = targetY;
-        this.color = color || `hsl(${Math.random() * 360},100%,60%)`;
-        this.exploded = false;
-        this.particles = [];
-        this.radius = 2;
-        this.speed = Math.max(6, window.innerHeight/120);
-        this.finished = false;
-      }
-      update() {
-        if (!this.exploded) {
-          this.y -= this.speed;
-          if (this.y <= this.targetY) {
-            this.exploded = true;
-            this.createExplosion();
-          }
-        } else {
-          this.particles.forEach(p => p.update());
-          this.particles = this.particles.filter(p => !p.finished);
-          if (this.particles.length === 0) this.finished = true;
-        }
-      }
-      draw() {
-        if (!this.exploded) {
-          ctx.beginPath();
-          ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-          ctx.fillStyle = this.color;
-          ctx.fill();
-        } else {
-          this.particles.forEach(p => p.draw());
-        }
-      }
-      createExplosion() {
-        for (let i = 0; i < 40; i++) {
-          const angle = (Math.PI * 2 / 40) * i;
-          const speed = Math.random() * 5 + 2;
-          this.particles.push(new Particle(this.x, this.y, Math.cos(angle) * speed, Math.sin(angle) * speed, this.color));
-        }
+    function drawFirework() {
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = "#fff";
+      ctx.beginPath();
+      ctx.arc(width / 2, height - fireworkY, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      fireworkY += 10;
+
+      if (height - fireworkY <= height / 2) {
+        triggerExplosion();
       }
     }
 
-    class Particle {
-      constructor(x, y, dx, dy, color) {
-        this.x = x;
-        this.y = y;
-        this.dx = dx;
-        this.dy = dy;
-        this.life = 50 + Math.random() * 30;
-        this.radius = 2 + Math.random();
-        this.color = color;
-        this.finished = false;
-      }
-      update() {
-        this.x += this.dx;
-        this.y += this.dy;
-        this.dy += 0.05; // gravity
-        this.life--;
-        if (this.life <= 0) this.finished = true;
-      }
-      draw() {
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = this.color;
-        ctx.globalAlpha = Math.max(this.life/80, 0.05);
-        ctx.fill();
-        ctx.globalAlpha = 1;
-      }
-    }
-
-    // --- Owl Shape (vector path) ---
-    const owlVector = [
-      // Simple owl outline with points (x, y)
-      {x: 0, y: -25}, {x: -20, y: -20}, {x: -25, y: 0}, {x: -15, y: 20}, {x: 0, y: 25},
-      {x: 15, y: 20}, {x: 25, y: 0}, {x: 20, y: -20}, {x: 0, y: -25}, // outline
-      // Eyes
-      {x: -8, y: -8}, {x: 8, y: -8},
-      // Beak
-      {x: 0, y: 2}
-    ];
-
-    // --- Owl Animation logic ---
-    let owlPathParticles = [];
-    let owlX = window.innerWidth / 2, owlY = window.innerHeight / 2;
-    let owlDX = 2, owlDY = 1.5;
-    function launchOwlParticles() {
-      owlPathParticles = [];
-      const scale = Math.min(window.innerWidth, window.innerHeight) / 18;
-      owlVector.forEach((pt, i) => {
-        owlPathParticles.push({
-          x: owlX + pt.x * scale,
-          y: owlY + pt.y * scale,
-          color: i < 9 ? "#FFD700" : (i < 11 ? "#fff" : "#FF8000"),
-          radius: i < 9 ? 8 : (i < 11 ? 13 : 5),
-          life: 120,
+    function triggerExplosion() {
+      for (let i = 0; i < 50; i++) {
+        explosionParticles.push({
+          x: width / 2,
+          y: height / 2,
+          angle: Math.random() * Math.PI * 2,
+          speed: Math.random() * 6 + 2,
+          radius: Math.random() * 3 + 2,
+          color: `hsl(${Math.random() * 360}, 100%, 50%)`,
         });
-      });
+      }
+
+      img.classList.add("show");
+      textDiv.classList.add("animate");
+
+      setTimeout(() => {
+        startFireworkText();
+      }, 2500);
     }
-    function updateOwlPosition() {
-      owlX += owlDX;
-      owlY += owlDY;
-      if (owlX < 60 || owlX > window.innerWidth - 60) owlDX *= -1;
-      if (owlY < 60 || owlY > window.innerHeight - 60) owlDY *= -1;
+
+    function startFireworkText() {
+      // Placeholder: Add more complex fireworks later to form text.
     }
-    function drawOwlParticles() {
-      owlPathParticles.forEach(pt => {
+
+    function drawExplosion() {
+      ctx.fillStyle = "rgba(0,0,0,0.15)";
+      ctx.fillRect(0, 0, width, height);
+
+      explosionParticles.forEach(p => {
+        const dx = Math.cos(p.angle) * p.speed;
+        const dy = Math.sin(p.angle) * p.speed;
+        p.x += dx;
+        p.y += dy;
+
         ctx.beginPath();
-        ctx.arc(pt.x, pt.y, pt.radius, 0, Math.PI*2);
-        ctx.fillStyle = pt.color;
-        ctx.globalAlpha = 0.9;
-        ctx.shadowColor = pt.color;
-        ctx.shadowBlur = 12;
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
         ctx.fill();
-        ctx.globalAlpha = 1;
-        ctx.shadowBlur = 0;
       });
     }
-    function updateOwlParticles() {
-      owlPathParticles.forEach(pt => {
-        pt.life--;
-      });
-      owlPathParticles = owlPathParticles.filter(pt => pt.life > 0);
-    }
 
-    // --- Animation phases ---
-    let animationPhase = 0; // 0: launch, 1: explode/reveal, 2: owl fireworks, 3: text fireworks, 4: text color/loop
-    let fireworks = [];
-    let letterParticles = [];
-    let textLit = false;
-    let textDiv = document.getElementById('text');
-    let imgReveal = document.getElementById('img-reveal');
-    let launchFirework;
-
-    // --- Controls ---
-    document.getElementById("replayBtn").onclick = () => {
-      startFireworkSequence();
-    };
-    document.getElementById("skipBtn").onclick = () => {
-      animationPhase = 4;
-      textDiv.style.opacity = '1';
-      imgReveal.style.opacity = '0';
-      owlPathParticles = [];
-      fireworks = [];
-    };
-
-    function startFireworkSequence() {
-      animationPhase = 0;
-      fireworks = [];
-      owlPathParticles = [];
-      launchFirework = new Firework(window.innerWidth/2, window.innerHeight+20, window.innerHeight*0.25, '#00f');
-      fireworks.push(launchFirework);
-      textDiv.style.opacity = '0';
-      imgReveal.style.opacity = '0';
-      imgReveal.style.display = 'none';
-      setTimeout(() => {
-        animationPhase = 1;
-      }, 1800); // time for firework to reach top
-    }
-
-    function triggerCircularReveal() {
-      imgReveal.style.opacity = '1';
-      circularReveal(imgReveal, 1600);
-      setTimeout(() => {
-        animationPhase = 2;
-        launchOwlParticles();
-      }, 1800);
-    }
-
-    function launchOwlParticles() {
-      // Animate owl fireworks for 2.5 seconds, then go to text
-      owlX = window.innerWidth / 2;
-      owlY = window.innerHeight * 0.35;
-      owlDX = Math.random() > 0.5 ? 2 : -2;
-      owlDY = Math.random() > 0.5 ? 1.5 : -1.5;
-      launchOwlParticles();
-      setTimeout(() => {
-        animationPhase = 3;
-        textDiv.style.opacity = '1';
-        launchLetterFireworks();
-      }, 2500);
-    }
-
-    function launchLetterFireworks() {
-      let fontSize = Math.max(26, window.innerWidth/13);
-      let positions = getLetterPositions("Happy Birthday Faustina", "Segoe UI", fontSize, window.innerWidth/2, window.innerHeight*0.08);
-      positions.forEach(pos => {
-        setTimeout(() => {
-          fireworks.push(new Firework(Math.random()*window.innerWidth, Math.random()*window.innerHeight, pos.y, `hsl(${Math.random()*360},100%,60%)`));
-          letterParticles.push({x: pos.x, y: pos.y, lit: false, color: '#fff'});
-        }, Math.random()*1200);
-      });
-      setTimeout(() => {
-        textLit = true;
-        animationPhase = 4;
-      }, 2500);
-    }
-
-    let colorIdx = 0;
-    const colorArr = ['#fff','#ff0','#0ff','#f0f','#0f0','#f00'];
-    function animateTextColor() {
-      colorIdx = (colorIdx + 1) % colorArr.length;
-      textDiv.style.color = colorArr[colorIdx];
-      textDiv.style.textShadow = `0 0 25px ${colorArr[colorIdx]}, 0 0 45px #fff`;
-    }
-
-    // --- Letter Particle Animation ---
-    function getLetterPositions(text, font, fontSize, startX, startY) {
-      const off = document.createElement('canvas');
-      off.width = canvas.width;
-      off.height = canvas.height;
-      const offCtx = off.getContext('2d');
-      offCtx.clearRect(0,0,off.width,off.height);
-      offCtx.font = `${fontSize}px ${font}`;
-      offCtx.fillStyle = "#fff";
-      offCtx.textAlign = "center";
-      offCtx.textBaseline = "top";
-      offCtx.fillText(text, startX, startY);
-      const positions = [];
-      const imgData = offCtx.getImageData(0,0,off.width,off.height).data;
-      for (let y = startY; y < startY + fontSize + 30; y += Math.max(4, fontSize/12)) {
-        for (let x = startX - off.width/3; x < startX + off.width/3; x += Math.max(4, fontSize/12)) {
-          const idx = (Math.floor(y) * off.width + Math.floor(x)) * 4;
-          if (imgData[idx + 3] > 160) {
-            positions.push({x, y});
-          }
-        }
-      }
-      return positions;
-    }
-
-    // --- Circular Image Reveal ---
-    function circularReveal(img, duration=1600) {
-      img.style.display = 'block';
-      img.style.opacity = '1';
-      const maskCanvas = document.createElement('canvas');
-      maskCanvas.width = img.offsetWidth;
-      maskCanvas.height = img.offsetHeight;
-      maskCanvas.style.position = 'absolute';
-      maskCanvas.style.left = img.style.left;
-      maskCanvas.style.top = img.style.top;
-      maskCanvas.style.transform = img.style.transform;
-      maskCanvas.style.zIndex = img.style.zIndex;
-      maskCanvas.style.pointerEvents = 'none';
-      maskCanvas.style.width = img.style.width;
-      maskCanvas.style.height = img.style.height;
-      document.body.appendChild(maskCanvas);
-      const mctx = maskCanvas.getContext('2d');
-      const start = performance.now();
-      function animate(t) {
-        let elapsed = t - start;
-        let pct = Math.min(elapsed / duration, 1);
-        let radius = pct * Math.max(maskCanvas.width, maskCanvas.height) / 2;
-        mctx.clearRect(0,0,maskCanvas.width,maskCanvas.height);
-        mctx.save();
-        mctx.beginPath();
-        mctx.arc(maskCanvas.width/2, maskCanvas.height/2, radius, 0, Math.PI*2);
-        mctx.clip();
-        mctx.drawImage(img,0,0,maskCanvas.width,maskCanvas.height);
-        mctx.restore();
-        if (pct < 1) {
-          requestAnimationFrame(animate);
-        } else {
-          img.style.display = 'block';
-          img.style.opacity = '1';
-          maskCanvas.remove();
-        }
-      }
-      requestAnimationFrame(animate);
-    }
-
-    // --- Animation Loop ---
     function animate() {
-      resizeCanvas();
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      if (animationPhase === 0 || animationPhase === 1 || animationPhase === 3) {
-        for (let i = fireworks.length - 1; i >= 0; i--) {
-          fireworks[i].update();
-          fireworks[i].draw();
-          if (fireworks[i].finished) fireworks.splice(i, 1);
-        }
+      if (fireworkY < height / 2) {
+        drawFirework();
+      } else {
+        drawExplosion();
       }
-
-      // Reveal image after firework explodes
-      if (animationPhase === 1 && !imgReveal.style.display.includes('block')) {
-        setTimeout(triggerCircularReveal, 400);
-      }
-
-      // Owl phase
-      if (animationPhase === 2) {
-        updateOwlPosition();
-        launchOwlParticles();
-        drawOwlParticles();
-        updateOwlParticles();
-      }
-
-      // Animate text particles
-      if (animationPhase === 3) {
-        letterParticles.forEach(p => {
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, 4, 0, Math.PI*2);
-          ctx.fillStyle = p.color;
-          ctx.globalAlpha = 0.2 + Math.random()*0.7;
-          ctx.shadowColor = p.color;
-          ctx.shadowBlur = 18;
-          ctx.fill();
-          ctx.globalAlpha = 1;
-          ctx.shadowBlur = 0;
-        });
-      }
-
-      // Animate text color
-      if (animationPhase === 4 && textLit) {
-        animateTextColor();
-      }
-
+      frame++;
       requestAnimationFrame(animate);
     }
 
-    // Start sequence
-    startFireworkSequence();
     animate();
   </script>
 </body>
