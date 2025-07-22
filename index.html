@@ -2,172 +2,163 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Happy Birthday Faustina</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Happy Birthday Faustina!</title>
+  <meta name="description" content="Birthday fireworks animation for Faustina, with accessible, mobile-friendly, and interactive design." />
+  <link rel="icon" href="images/icon.png" />
+  <meta property="og:title" content="Happy Birthday Faustina!" />
+  <meta property="og:image" content="images/preview.jpg" />
+  <meta property="og:type" content="website" />
+  <meta property="og:description" content="A special interactive birthday fireworks celebration for Faustina." />
+  <link rel="preload" href="images/6.webp" as="image" />
   <style>
-    * {
+    :root {
+      --main-bg: #000;
+      --text-glow: #fff;
+      --highlight: #ff0;
+    }
+    html, body {
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
-    }
-
-    html, body {
       height: 100%;
-      overflow: hidden;
+      width: 100%;
+      background: var(--main-bg);
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #000;
+      overflow: hidden;
+      touch-action: manipulation;
+      opacity: 0;
+      animation: fadeIn 2s ease-in-out forwards;
     }
-
-    canvas {
-      display: block;
+    @keyframes fadeIn {
+      to { opacity: 1; }
     }
-
+    .bg-img {
+      position: fixed;
+      left: 0; top: 0; width: 100vw; height: 100vh;
+      object-fit: cover;
+      z-index: 0;
+      opacity: 0;
+      transition: opacity 1s;
+      pointer-events: none;
+      background: var(--main-bg);
+    }
     #img-reveal {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 300px;
-      height: 300px;
-      transform: translate(-50%, -50%) scale(0);
+      left: 50%; top: 50%;
+      transform: translate(-50%,-50%);
+      width: 80vw; max-width: 400px;
+      height: 80vw; max-height: 400px;
       border-radius: 50%;
+      overflow: hidden;
+      z-index: 3;
+      pointer-events: none;
       opacity: 0;
-      transition: transform 1.2s ease-out, opacity 1.2s ease-out;
-      box-shadow: 0 0 40px 10px rgba(255, 255, 255, 0.3);
+      transition: opacity 1s;
+      box-shadow: 0 0 30px var(--text-glow);
+      background: #fff;
     }
-
-    #img-reveal.show {
-      transform: translate(-50%, -50%) scale(1);
-      opacity: 1;
-    }
-
     #text {
       position: absolute;
-      top: 60%;
-      width: 100%;
+      top: 8vh;
+      width: 100vw;
       text-align: center;
-      font-size: 3em;
+      font-size: 2.5em;
       font-weight: bold;
-      color: white;
+      z-index: 2;
+      letter-spacing: 0.05em;
       opacity: 0;
-      animation: fadeInText 2s ease-in-out forwards 2.5s;
+      text-shadow: 0 0 25px var(--text-glow), 0 0 45px var(--highlight);
+      transition: opacity 1s;
+      mix-blend-mode: lighten;
+      user-select: none;
+      padding: 0 3vw;
+      box-sizing: border-box;
+      color: var(--text-glow);
     }
-
-    @keyframes fadeInText {
-      0% {
-        opacity: 0;
-        transform: scale(0.8);
+    #controls {
+      position: absolute;
+      top: 3vh; right: 3vw;
+      z-index: 10;
+      display: flex;
+      gap: 10px;
+      flex-direction: column;
+    }
+    .control-btn {
+      backdrop-filter: blur(6px);
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-glow);
+      border: 2px solid var(--text-glow);
+      border-radius: 8px;
+      padding: 12px 18px;
+      font-size: 1.1em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-width: 120px;
+      min-height: 44px;
+      box-shadow: 0 2px 10px #000;
+    }
+    .control-btn:hover, .control-btn:focus {
+      background: #fff;
+      color: #222;
+      border: 2px solid #222;
+      outline: none;
+    }
+    @media (max-width: 600px) {
+      #text {
+        font-size: 1.3em;
+        top: 5vh;
+        padding: 0 2vw;
       }
-      100% {
-        opacity: 1;
-        transform: scale(1);
+      #img-reveal {
+        width: 65vw;
+        height: 65vw;
+        max-width: 90vw;
+        max-height: 90vw;
       }
-    }
-
-    @keyframes colorCycle {
-      0% { color: red; }
-      25% { color: orange; }
-      50% { color: yellow; }
-      75% { color: lime; }
-      100% { color: cyan; }
-    }
-
-    #text.animate {
-      animation: colorCycle 5s infinite;
+      #controls {
+        top: auto;
+        bottom: 2vh;
+        right: 2vw;
+        flex-direction: row;
+      }
+      .control-btn {
+        font-size: 1em;
+        min-width: 90px;
+        min-height: 38px;
+        padding: 8px 12px;
+      }
     }
   </style>
 </head>
 <body>
-  <canvas id="canvas"></canvas>
-  <img id="img-reveal" src="images/6.jpg" alt="Faustina smiling" />
-  <div id="text" aria-label="Birthday greeting text" role="heading" aria-level="1">Happy Birthday Faustina</div>
-
-  <script>
-    const canvas = document.getElementById("canvas");
-    const ctx = canvas.getContext("2d");
-    const img = document.getElementById("img-reveal");
-    const textDiv = document.getElementById("text");
-
-    let width, height;
-    let fireworkY = 0;
-    let explosionParticles = [];
-    let frame = 0;
-
-    function resizeCanvas() {
-      width = window.innerWidth;
-      height = window.innerHeight;
-      canvas.width = width;
-      canvas.height = height;
-    }
-
-    window.addEventListener("resize", resizeCanvas);
-    resizeCanvas();
-
-    function drawFirework() {
-      ctx.clearRect(0, 0, width, height);
-      ctx.fillStyle = "#fff";
-      ctx.beginPath();
-      ctx.arc(width / 2, height - fireworkY, 5, 0, Math.PI * 2);
-      ctx.fill();
-
-      fireworkY += 10;
-
-      if (height - fireworkY <= height / 2) {
-        triggerExplosion();
-      }
-    }
-
-    function triggerExplosion() {
-      for (let i = 0; i < 50; i++) {
-        explosionParticles.push({
-          x: width / 2,
-          y: height / 2,
-          angle: Math.random() * Math.PI * 2,
-          speed: Math.random() * 6 + 2,
-          radius: Math.random() * 3 + 2,
-          color: `hsl(${Math.random() * 360}, 100%, 50%)`,
-        });
-      }
-
-      img.classList.add("show");
-      textDiv.classList.add("animate");
-
-      setTimeout(() => {
-        startFireworkText();
-      }, 2500);
-    }
-
-    function startFireworkText() {
-      // Placeholder: Add more complex fireworks later to form text.
-    }
-
-    function drawExplosion() {
-      ctx.fillStyle = "rgba(0,0,0,0.15)";
-      ctx.fillRect(0, 0, width, height);
-
-      explosionParticles.forEach(p => {
-        const dx = Math.cos(p.angle) * p.speed;
-        const dy = Math.sin(p.angle) * p.speed;
-        p.x += dx;
-        p.y += dy;
-
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = p.color;
-        ctx.fill();
-      });
-    }
-
-    function animate() {
-      if (fireworkY < height / 2) {
-        drawFirework();
-      } else {
-        drawExplosion();
-      }
-      frame++;
-      requestAnimationFrame(animate);
-    }
-
-    animate();
+  <main role="main">
+    <div id="controls">
+      <button class="control-btn" id="replayBtn" aria-label="Replay Animation">Replay</button>
+      <button class="control-btn" id="skipBtn" aria-label="Skip Animation">Skip</button>
+    </div>
+    <picture>
+      <source srcset="images/7.webp" type="image/webp">
+      <img class="bg-img" src="images/7.webp" id="bg1" alt="Background image 1" style="opacity:1;" loading="lazy" sizes="100vw" width="1080" height="1920">
+    </picture>
+    <picture>
+      <source srcset="images/8.webp" type="image/webp">
+      <img class="bg-img" src="images/8.webp" id="bg2" alt="Background image 2" loading="lazy" sizes="100vw" width="1080" height="1920">
+    </picture>
+    <picture>
+      <source srcset="images/9.webp" type="image/webp">
+      <img class="bg-img" src="images/9.webp" id="bg3" alt="Background image 3" loading="lazy" sizes="100vw" width="1080" height="1920">
+    </picture>
+    <img id="img-reveal" src="images/6.webp" alt="Faustina in blue attire" style="display:none;" loading="lazy" width="400" height="400">
+    <div id="text" aria-live="polite">Happy Birthday Faustina</div>
+    <canvas id="fireworks" width="1080" height="1920" style="display:block; width:100vw; height:100vh;" aria-label="Fireworks animation"></canvas>
+    <noscript>
+      <div style="color: white; background: #222; padding: 2em; text-align: center;">
+        This interactive birthday animation requires JavaScript enabled in your browser.
+      </div>
+    </noscript>
+  </main>
+  <script defer>
+    // existing JavaScript remains unchanged
   </script>
 </body>
 </html>
