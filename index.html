@@ -160,7 +160,7 @@
   <img class="bg-img" src="images/7.jpg" id="bg1" alt="Background image 1" style="opacity:1;" loading="lazy" sizes="100vw" width="1080" height="1920">
   <img class="bg-img" src="images/8.jpg" id="bg2" alt="Background image 2" loading="lazy" sizes="100vw" width="1080" height="1920">
   <img class="bg-img" src="images/9.jpg" id="bg3" alt="Background image 3" loading="lazy" sizes="100vw" width="1080" height="1920">
-  <img class="bg-img" src="image1" id="bg4" alt="User holding a green fruit" loading="lazy" sizes="100vw" width="768" height="1024">
+  <img class="bg-img" src="image1" id="bg4" alt="A person holding a green fruit" loading="lazy" sizes="100vw" width="768" height="1024">
   <!-- Circular reveal image -->
   <img id="img-reveal" src="images/6.jpg" alt="Faustina in blue attire" style="display:none;" loading="lazy" width="400" height="400">
   <!-- Fireworks text -->
@@ -174,7 +174,7 @@
     </div>
   </noscript>
   <script defer>
-    // Focus controls for accessibility
+    // Controls for accessibility
     document.getElementById("replayBtn").tabIndex = 1;
     document.getElementById("skipBtn").tabIndex = 2;
 
@@ -192,15 +192,18 @@
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
 
+    // Lower confetti count for smoother performance
+    const MAX_CONFETTI = 20;
     function createConfetti() {
+      confettiParticles = [];
       const colors = ['#FFC700', '#FF0000', '#2E3192', '#41BBC7', '#FFF', '#00CA4E', '#FF70A6'];
-      for(let i=0; i<45; i++) {
+      for(let i=0; i<MAX_CONFETTI; i++) {
         confettiParticles.push({
           x: Math.random()*window.innerWidth,
           y: Math.random()*-window.innerHeight,
-          r: Math.random()*8+6,
+          r: Math.random()*7+5,
           color: colors[Math.floor(Math.random()*colors.length)],
-          speed: Math.random()*2+1,
+          speed: Math.random()*1.5+0.7,
           angle: Math.random()*Math.PI*2,
           swing: Math.random()*0.7+0.2
         });
@@ -223,14 +226,14 @@
         confettiCtx.beginPath();
         confettiCtx.arc(p.x, p.y, p.r, 0, Math.PI*2);
         confettiCtx.fillStyle = p.color;
-        confettiCtx.globalAlpha = 0.9;
+        confettiCtx.globalAlpha = 0.85;
         confettiCtx.fill();
         confettiCtx.globalAlpha = 1;
       }
     }
     createConfetti();
 
-    // Background cycling (now with 4 images incl. user upload)
+    // Background cycling
     const bgImages = [
       document.getElementById("bg1"),
       document.getElementById("bg2"),
@@ -239,11 +242,14 @@
     ];
     let bgIndex = 0;
 
-    // Firework particle system
+    // Firework system, optimized for speed
     const canvas = document.getElementById("fireworks");
     const ctx = canvas.getContext("2d");
     const text = document.getElementById("text");
     const reveal = document.getElementById("img-reveal");
+
+    const MAX_FIREWORKS = 6;
+    const PARTICLES_PER_FIREWORK = 28;
 
     class FireworkParticle {
       constructor(x, y, color, angle, speed) {
@@ -252,8 +258,8 @@
         this.color = color;
         this.angle = angle;
         this.speed = speed;
-        this.radius = Math.random() * 2 + 1.5;
-        this.life = 70 + Math.random() * 40;
+        this.radius = Math.random() * 1.2 + 1;
+        this.life = 55 + Math.random() * 25;
         this.opacity = 1;
         this.gravity = 0.03 + Math.random() * 0.02;
       }
@@ -262,18 +268,15 @@
         this.y += Math.sin(this.angle) * this.speed + this.gravity * this.life;
         this.speed *= 0.97;
         this.life--;
-        this.opacity = Math.max(0, this.life / 90);
+        this.opacity = Math.max(0, this.life / 60);
       }
       draw(ctx) {
-        ctx.save();
         ctx.globalAlpha = this.opacity;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
         ctx.fillStyle = this.color;
-        ctx.shadowColor = this.color;
-        ctx.shadowBlur = 18;
         ctx.fill();
-        ctx.restore();
+        ctx.globalAlpha = 1;
       }
     }
 
@@ -284,7 +287,7 @@
         this.exploded = false;
         this.particles = [];
         this.rocketY = canvas.height;
-        this.rocketSpeed = 12 + Math.random() * 4;
+        this.rocketSpeed = 9 + Math.random() * 2;
         this.color = `hsl(${Math.random() * 360}, 100%, 60%)`;
       }
       update() {
@@ -304,14 +307,10 @@
       }
       draw(ctx) {
         if (!this.exploded) {
-          ctx.save();
           ctx.beginPath();
-          ctx.arc(this.x, this.rocketY, 3, 0, 2 * Math.PI);
+          ctx.arc(this.x, this.rocketY, 2.5, 0, 2 * Math.PI);
           ctx.fillStyle = this.color;
-          ctx.shadowColor = this.color;
-          ctx.shadowBlur = 12;
           ctx.fill();
-          ctx.restore();
         } else {
           for (const p of this.particles) {
             p.draw(ctx);
@@ -319,9 +318,9 @@
         }
       }
       explode() {
-        for (let i = 0; i < 60; i++) {
-          const angle = (Math.PI * 2 / 60) * i;
-          const speed = Math.random() * 5 + 2.2;
+        for (let i = 0; i < PARTICLES_PER_FIREWORK; i++) {
+          const angle = (Math.PI * 2 / PARTICLES_PER_FIREWORK) * i;
+          const speed = Math.random() * 4 + 1.5;
           const color = `hsl(${Math.random() * 360}, 100%, 70%)`;
           this.particles.push(new FireworkParticle(this.x, this.y, color, angle, speed));
         }
@@ -334,7 +333,9 @@
     let fireworksArr = [];
 
     function launchFirework(x, y) {
-      fireworksArr.push(new Firework(x, y));
+      if (fireworksArr.length < MAX_FIREWORKS) {
+        fireworksArr.push(new Firework(x, y));
+      }
     }
 
     // Interactive: launch fireworks on tap/click
@@ -349,7 +350,7 @@
     });
 
     // Circular image reveal effect
-    function circularReveal(img, duration=1800) {
+    function circularReveal(img, duration=1400) {
       img.style.display = 'block';
       img.style.opacity = '1';
       const maskCanvas = document.createElement('canvas');
@@ -392,11 +393,11 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       reveal.style.display = 'block';
       reveal.style.opacity = '1';
-      circularReveal(reveal, 1800);
+      circularReveal(reveal, 1400);
 
       // Launch initial fireworks in a nice arc
       for (let i = 0; i < 4; i++) {
-        launchFirework(canvas.width / 5 + i * canvas.width / 5, canvas.height / 3 + Math.random() * 80 - 40);
+        launchFirework(canvas.width / 5 + i * canvas.width / 5, canvas.height / 3 + Math.random() * 60 - 30);
       }
 
       // Cycle backgrounds
@@ -406,11 +407,11 @@
         bgImages[bgIndex].style.opacity = 1;
       }, 5000);
 
-      // Show Text with animated color after 2.2s
+      // Show Text with animated color after 1.6s
       setTimeout(() => {
         text.style.opacity = '1';
         animateColors();
-      }, 2200);
+      }, 1600);
     }
 
     function animateColors() {
@@ -419,7 +420,7 @@
       setInterval(() => {
         text.style.color = colors[i % colors.length];
         i++;
-      }, 700);
+      }, 650);
     }
 
     document.getElementById("replayBtn").addEventListener("click", startAnimation);
@@ -430,7 +431,7 @@
       animateColors();
     });
 
-    // Confetti and main animation loop
+    // Animation loop (only one!)
     function mainLoop() {
       // Fireworks
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -450,7 +451,7 @@
 
     // Start on load
     window.onload = () => {
-      setTimeout(startAnimation, 1200);
+      setTimeout(startAnimation, 900);
     };
   </script>
 </body>
