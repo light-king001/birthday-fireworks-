@@ -27,6 +27,8 @@
       min-width: 100vw;
       min-height: 100vh;
       background: #000;
+      /* Ensure the image displays */
+      display: block;
     }
     #img-reveal {
       position: absolute;
@@ -160,7 +162,8 @@
   <img class="bg-img" src="images/7.jpg" id="bg1" alt="Background image 1" style="opacity:1;" loading="lazy" sizes="100vw" width="1080" height="1920">
   <img class="bg-img" src="images/8.jpg" id="bg2" alt="Background image 2" loading="lazy" sizes="100vw" width="1080" height="1920">
   <img class="bg-img" src="images/9.jpg" id="bg3" alt="Background image 3" loading="lazy" sizes="100vw" width="1080" height="1920">
-  <img class="bg-img" src="image1" id="bg4" alt="A person holding a green fruit" loading="lazy" sizes="100vw" width="768" height="1024">
+  <!-- The uploaded image is referenced here as "image1" -->
+  <img class="bg-img" src="./image1.jpg" id="bg4" alt="A person holding a green fruit" loading="lazy" sizes="100vw" width="768" height="1024">
   <!-- Circular reveal image -->
   <img id="img-reveal" src="images/6.jpg" alt="Faustina in blue attire" style="display:none;" loading="lazy" width="400" height="400">
   <!-- Fireworks text -->
@@ -174,7 +177,6 @@
     </div>
   </noscript>
   <script defer>
-    // Controls for accessibility
     document.getElementById("replayBtn").tabIndex = 1;
     document.getElementById("skipBtn").tabIndex = 2;
 
