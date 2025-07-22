@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Happy Birthday Faustina!</title>
-  <meta name="description" content="Birthday fireworks animation for Faustina, with music, confetti, interactive fireworks, and mobile-friendly design." />
+  <meta name="description" content="Birthday fireworks animation for Faustina, with confetti, interactive fireworks, and beautiful background cycling." />
   <style>
     html, body {
       margin: 0;
@@ -59,6 +59,12 @@
       user-select: none;
       padding: 0 3vw;
       box-sizing: border-box;
+      filter: drop-shadow(0 0 12px #fff);
+      animation: bounceText 2s infinite alternate;
+    }
+    @keyframes bounceText {
+      0% { transform: translateY(0);}
+      100% { transform: translateY(-10px);}
     }
     #controls {
       position: absolute;
@@ -97,6 +103,20 @@
       z-index: 5;
       display: block;
     }
+    .footer {
+      position: absolute;
+      bottom: 1vh;
+      width: 100vw;
+      text-align: center;
+      z-index: 20;
+      color: #fff;
+      font-size: 1.05em;
+      opacity: 0.7;
+      letter-spacing: 0.08em;
+      text-shadow: 0 0 8px #111;
+      pointer-events: none;
+      user-select: none;
+    }
     @media (max-width: 600px) {
       #text {
         font-size: 1.3em;
@@ -121,6 +141,9 @@
         min-height: 38px;
         padding: 8px 12px;
       }
+      .footer {
+        font-size: 0.92em;
+      }
     }
     body, .control-btn {
       touch-action: manipulation;
@@ -132,7 +155,6 @@
   <div id="controls">
     <button class="control-btn" id="replayBtn" aria-label="Replay Animation">Replay</button>
     <button class="control-btn" id="skipBtn" aria-label="Skip Animation">Skip</button>
-    <button class="control-btn" id="musicBtn" aria-label="Play/Pause Music">🎵 Music</button>
   </div>
   <!-- Background images (with alt, lazy loading, width/height hints) -->
   <img class="bg-img" src="images/7.jpg" id="bg1" alt="Background image 1" style="opacity:1;" loading="lazy" sizes="100vw" width="1080" height="1920">
@@ -145,34 +167,18 @@
   <div id="text">Happy Birthday Faustina</div>
   <canvas id="fireworks" width="1080" height="1920" aria-label="Fireworks animation"></canvas>
   <canvas id="confetti-canvas"></canvas>
-  <audio id="audio" src="https://cdn.pixabay.com/audio/2022/08/20/audio_12b6b8b1d2.mp3" preload="auto" loop></audio>
+  <div class="footer">Made with 🎉 for Faustina</div>
   <noscript>
     <div style="color: white; background: #222; padding: 2em; text-align: center;">
       This interactive birthday animation requires JavaScript enabled in your browser.
     </div>
   </noscript>
   <script defer>
+    // Focus controls for accessibility
     document.getElementById("replayBtn").tabIndex = 1;
     document.getElementById("skipBtn").tabIndex = 2;
-    document.getElementById("musicBtn").tabIndex = 3;
 
-    // --- Music controls ---
-    const audio = document.getElementById("audio");
-    let musicPlaying = false;
-    document.getElementById("musicBtn").onclick = () => {
-      if (musicPlaying) {
-        audio.pause();
-        musicPlaying = false;
-      } else {
-        audio.play();
-        musicPlaying = true;
-      }
-    };
-    audio.onended = () => { musicPlaying = false; document.getElementById("musicBtn").textContent = "🎵 Music";};
-    audio.onplay = () => { document.getElementById("musicBtn").textContent = "⏸ Music";};
-    audio.onpause = () => { document.getElementById("musicBtn").textContent = "🎵 Music";};
-
-    // --- Confetti animation ---
+    // Confetti
     const confettiCanvas = document.getElementById("confetti-canvas");
     const confettiCtx = confettiCanvas.getContext("2d");
     let confettiParticles = [];
@@ -188,7 +194,7 @@
 
     function createConfetti() {
       const colors = ['#FFC700', '#FF0000', '#2E3192', '#41BBC7', '#FFF', '#00CA4E', '#FF70A6'];
-      for(let i=0; i<30; i++) {
+      for(let i=0; i<45; i++) {
         confettiParticles.push({
           x: Math.random()*window.innerWidth,
           y: Math.random()*-window.innerHeight,
@@ -224,7 +230,7 @@
     }
     createConfetti();
 
-    // --- Background cycling ---
+    // Background cycling (now with 4 images incl. user upload)
     const bgImages = [
       document.getElementById("bg1"),
       document.getElementById("bg2"),
@@ -233,13 +239,12 @@
     ];
     let bgIndex = 0;
 
-    // --- Firework animation ---
+    // Firework particle system
     const canvas = document.getElementById("fireworks");
     const ctx = canvas.getContext("2d");
     const text = document.getElementById("text");
     const reveal = document.getElementById("img-reveal");
 
-    // Firework particle system
     class FireworkParticle {
       constructor(x, y, color, angle, speed) {
         this.x = x;
@@ -247,8 +252,8 @@
         this.color = color;
         this.angle = angle;
         this.speed = speed;
-        this.radius = Math.random() * 2 + 1;
-        this.life = 60 + Math.random() * 40;
+        this.radius = Math.random() * 2 + 1.5;
+        this.life = 70 + Math.random() * 40;
         this.opacity = 1;
         this.gravity = 0.03 + Math.random() * 0.02;
       }
@@ -257,7 +262,7 @@
         this.y += Math.sin(this.angle) * this.speed + this.gravity * this.life;
         this.speed *= 0.97;
         this.life--;
-        this.opacity = Math.max(0, this.life / 80);
+        this.opacity = Math.max(0, this.life / 90);
       }
       draw(ctx) {
         ctx.save();
@@ -266,7 +271,7 @@
         ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
         ctx.fillStyle = this.color;
         ctx.shadowColor = this.color;
-        ctx.shadowBlur = 16;
+        ctx.shadowBlur = 18;
         ctx.fill();
         ctx.restore();
       }
@@ -279,7 +284,7 @@
         this.exploded = false;
         this.particles = [];
         this.rocketY = canvas.height;
-        this.rocketSpeed = 10 + Math.random() * 4;
+        this.rocketSpeed = 12 + Math.random() * 4;
         this.color = `hsl(${Math.random() * 360}, 100%, 60%)`;
       }
       update() {
@@ -304,7 +309,7 @@
           ctx.arc(this.x, this.rocketY, 3, 0, 2 * Math.PI);
           ctx.fillStyle = this.color;
           ctx.shadowColor = this.color;
-          ctx.shadowBlur = 10;
+          ctx.shadowBlur = 12;
           ctx.fill();
           ctx.restore();
         } else {
@@ -314,9 +319,9 @@
         }
       }
       explode() {
-        for (let i = 0; i < 50; i++) {
-          const angle = (Math.PI * 2 / 50) * i;
-          const speed = Math.random() * 5 + 2;
+        for (let i = 0; i < 60; i++) {
+          const angle = (Math.PI * 2 / 60) * i;
+          const speed = Math.random() * 5 + 2.2;
           const color = `hsl(${Math.random() * 360}, 100%, 70%)`;
           this.particles.push(new FireworkParticle(this.x, this.y, color, angle, speed));
         }
@@ -332,7 +337,7 @@
       fireworksArr.push(new Firework(x, y));
     }
 
-    // Interactive launch
+    // Interactive: launch fireworks on tap/click
     canvas.addEventListener("click", function(e){
       launchFirework(e.clientX, e.clientY);
     });
@@ -343,14 +348,55 @@
       }
     });
 
+    // Circular image reveal effect
+    function circularReveal(img, duration=1800) {
+      img.style.display = 'block';
+      img.style.opacity = '1';
+      const maskCanvas = document.createElement('canvas');
+      maskCanvas.width = img.offsetWidth;
+      maskCanvas.height = img.offsetHeight;
+      maskCanvas.style.position = 'absolute';
+      maskCanvas.style.left = img.style.left;
+      maskCanvas.style.top = img.style.top;
+      maskCanvas.style.transform = img.style.transform;
+      maskCanvas.style.zIndex = img.style.zIndex;
+      maskCanvas.style.pointerEvents = 'none';
+      maskCanvas.style.width = img.style.width;
+      maskCanvas.style.height = img.style.height;
+      document.body.appendChild(maskCanvas);
+      const mctx = maskCanvas.getContext('2d');
+      const start = performance.now();
+      function animate(t) {
+        let elapsed = t - start;
+        let pct = Math.min(elapsed / duration, 1);
+        let radius = pct * Math.max(maskCanvas.width, maskCanvas.height) / 2;
+        mctx.clearRect(0,0,maskCanvas.width,maskCanvas.height);
+        mctx.save();
+        mctx.beginPath();
+        mctx.arc(maskCanvas.width/2, maskCanvas.height/2, radius, 0, Math.PI*2);
+        mctx.clip();
+        mctx.drawImage(img,0,0,maskCanvas.width,maskCanvas.height);
+        mctx.restore();
+        if (pct < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          img.style.display = 'block';
+          img.style.opacity = '1';
+          maskCanvas.remove();
+        }
+      }
+      requestAnimationFrame(animate);
+    }
+
     function startAnimation() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       reveal.style.display = 'block';
       reveal.style.opacity = '1';
+      circularReveal(reveal, 1800);
 
-      // Launch initial fireworks
-      for (let i = 0; i < 3; i++) {
-        launchFirework(canvas.width / 4 + i * canvas.width / 4, canvas.height / 3 + Math.random() * 80 - 40);
+      // Launch initial fireworks in a nice arc
+      for (let i = 0; i < 4; i++) {
+        launchFirework(canvas.width / 5 + i * canvas.width / 5, canvas.height / 3 + Math.random() * 80 - 40);
       }
 
       // Cycle backgrounds
@@ -360,20 +406,20 @@
         bgImages[bgIndex].style.opacity = 1;
       }, 5000);
 
-      // Show Text After 3s
+      // Show Text with animated color after 2.2s
       setTimeout(() => {
         text.style.opacity = '1';
         animateColors();
-      }, 3000);
+      }, 2200);
     }
 
     function animateColors() {
-      const colors = ['#ff0000', '#00ff00', '#00ccff', '#ff66ff', '#ffff00'];
+      const colors = ['#ff0000', '#00ff00', '#00ccff', '#ff66ff', '#ffff00', '#fff'];
       let i = 0;
       setInterval(() => {
         text.style.color = colors[i % colors.length];
         i++;
-      }, 800);
+      }, 700);
     }
 
     document.getElementById("replayBtn").addEventListener("click", startAnimation);
@@ -404,7 +450,7 @@
 
     // Start on load
     window.onload = () => {
-      setTimeout(startAnimation, 1000);
+      setTimeout(startAnimation, 1200);
     };
   </script>
 </body>
